@@ -3,7 +3,8 @@ import numpy as np
 import torch
 import torch.utils.data.dataset as Dataset
 import torch.utils.data.dataloader as DataLoader
-import os
+from os import listdir
+from os.path import  isfile,join
 
 def load_itk(path):
     itk_img = sitk.ReadImage(path)
@@ -15,6 +16,8 @@ def load_itk(path):
 
 class Train_data(Dataset.Dataset):
     def __init__(self, root):  # 所有图片的绝对路径
+        self.root = root
+        '''
         imgs = os.listdir(root)
         imgs.sort(key = lambda x:int(x[4:6]))
         #print(imgs)
@@ -26,10 +29,16 @@ class Train_data(Dataset.Dataset):
                     self.imgs.append([os.path.join(root, k)])
                 else:
                     self.segs.append([os.path.join(root, k)])
+        '''
+    def create_image_file_list(self):
+        self.fileList = [f for f in listdir(self.root) if
+                         isfile(join(self.root, f)) and 'segmentation' not in f and 'raw' not in f]
+
+        print('FileList:' + str(self.fileList))
 
     def __getitem__(self, index):
-        img_path = self.imgs[index]
-        label_path = self.segs[index]
+        img_path = self.fileList[index]
+        label_path = img_path[:-4] + '_segmentation.mhd'   #segmentation path
         itk_imag = load_itk(img_path)
         itk_label = load_itk(label_path)
         data = torch.from_numpy(itk_imag[0])

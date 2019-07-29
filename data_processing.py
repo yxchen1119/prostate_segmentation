@@ -5,6 +5,7 @@ import torch.utils.data.dataset as Dataset
 import torch.utils.data.dataloader as DataLoader
 from os import listdir
 from os.path import  isfile,join
+import transform
 
 def load_itk(path):
     itk_img = sitk.ReadImage(path)
@@ -14,12 +15,11 @@ def load_itk(path):
 
     return img_array, origin, spacing
 
-def pre_processing(image_path):
+def transform(image_path):
     itk_imag = load_itk(image_path)
-
-    #########BIAS4
-    #########Transform
-    return data
+    data_transform = transform.create_transform()
+    img = data_transform(itk_imag)
+    return img
 
 
 class Train_data(Dataset.Dataset):
@@ -36,8 +36,8 @@ class Train_data(Dataset.Dataset):
         img_path = self.fileList[index]
         label_path = img_path[:-4] + '_segmentation.mhd'   #segmentation path
 
-        data = pre_processing(img_path)
-        label = pre_processing(label_path)
+        data = transform(img_path)
+        label = transform(label_path)
 
         #use gpu
         if torch.cuda.is_available():
@@ -51,10 +51,10 @@ class Train_data(Dataset.Dataset):
 
 
 def get_train_dataloader(root):
-    Train_dataSet = Train_data(root)  #'./TrainData'
+    Train_dataSet = Train_data(root)
     Train_dataSet.create_image_file_list()
     data_loader = DataLoader.DataLoader(Train_dataSet, batch_size=2, shuffle=False, num_workers=0)
     return data_loader
 
 
-daraLoader = get_train_dataloader('./TrainData')
+daraLoader = get_train_dataloader('./Corrected_Data')

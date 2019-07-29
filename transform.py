@@ -3,7 +3,7 @@ import random
 import torch
 from torchvision.transforms import Compose
 
-class RandomFlip:
+class RandomFlip(object):
     def __init__(self, random_state, **kwargs):
         assert random_state is not None, 'RandomState cannot be None'
         self.random_state = random_state
@@ -15,7 +15,7 @@ class RandomFlip:
                 m = np.flip(m, axis)
         return m
 
-class RandomRotate90:
+class RandomRotate90(object):
     def __init__(self, degree, random_state, **kwargs):
         self.random_state = random_state
         self.degree = degree
@@ -29,7 +29,7 @@ class RandomRotate90:
 
         return m
 
-class GaussianNoise:
+class GaussianNoise(object):
     def __init__(self, random_state, max_sigma, max_value=255, **kwargs):
         self.random_state = random_state
         self.max_sigma = max_sigma
@@ -42,29 +42,21 @@ class GaussianNoise:
         noisy_m = m + gaussian_noise
         return np.clip(noisy_m, 0, self.max_value).astype(m.dtype)
 
-class Randomcrop:
-    def __init__(self, l, h, w):
-        self.length = l
-        self.height = h
-        self.width = w
-
+class Randomcrop(object):
     def __call__(self, img):
         dim = img.size()
         x = random.randint(1, dim[0]/2)
         y = random.randint(1, dim[1]/2)
         z = random.randint(1, dim[2]/2)
-        cropImg = img[(x):(y + self.length/2), (y):(y + self.width/2), (z):(z + self.height/2)]
+        cropImg = img[(x):(x + dim[0]/2), (y):(y + dim[1]/2), (z):(z + dim[2]/2)]
 
         return cropImg
 
-class Transformer:
-    def __init__(self):
-        self.seed = 47
-
-    def _create_transform(self, name):
-        self.random_state = np.random.RandomState(self.seed)
-        return Compose([
-            RandomFlip(self.random_state),
-            GaussianNoise(self.random_state, 0.7),
-
-        ])
+def create_transform():
+    seed = 47
+    random_state = np.random.RandomState(seed)
+    return Compose([
+        RandomFlip(random_state),
+        GaussianNoise(random_state, 0.7),
+        Randomcrop(),
+    ])

@@ -90,10 +90,10 @@ def get_dataloader(root):
     return data_loader
 
 '''
-Traindata_loader = get_dataloader('./Corrected_Data/')
+Traindata_loader = get_dataloader('./Train_data/')
 
 for batch_idx, (inputs, targets) in enumerate(Traindata_loader):
-
+    inputs = inputs.float().unsqueeze(1)
     print(inputs.size())
 
 

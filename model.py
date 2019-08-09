@@ -87,16 +87,14 @@ class Unet(nn.Module):
 
         return out
 
-'''
+
 if __name__ == "__main__":
-    image_size = 128
-    #x = torch.Tensor(1, 3, image_size, image_size, image_size)
-    x = torch.rand(1, 3, image_size, image_size, image_size)
+    image_size = 64
+    x = torch.Tensor(1, 3, image_size, image_size, image_size)
     print("x size: {}".format(x.size()))
-    #x = torch.autograd.Variable(x)
+    x = torch.autograd.Variable(x)
     model = Unet(in_dim=3, out_dim=3, num_filters=4)
-    #out = model(x)
+    out = model(x)
+    print(out.size())
     with SummaryWriter(comment='LeNet') as w:
-        w.add_graph(model, (x, ))
-    #print(out.size())
-'''
+        w.add_graph(model, (x,))
